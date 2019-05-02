@@ -190,6 +190,13 @@ export default {
       }
       this.nativeSpeechRecognition.start();
     },
+    stopNativeSpeechToText() {
+      if (this.nativeSpeechRecognition == null) {
+        return;
+      }
+      this.speechRecognitionEnded = true;
+      this.nativeSpeechRecognition.stop();
+    },
   },
   mounted() {
     window.SpeechRecognition =
