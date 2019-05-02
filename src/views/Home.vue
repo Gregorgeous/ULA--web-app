@@ -200,6 +200,9 @@ export default {
       this.speechRecognitionEnded = false;
       this.nativeSpeechToText();
     },
+    openSaveRecordingDialog() {
+      this.saveRecordingDialog = true;
+    },
     discardTheRecording() {
       this.saveRecordingDialog = false;
       this.nativeTextTranscription = [];
