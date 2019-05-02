@@ -180,6 +180,15 @@ export default {
     speechRecognitionEnded: false
   }),
   methods: {
+    async startRecording() {
+      if (this.recordingPaused) {
+        return this.resumeRecording();
+      }
+      this.recorder = await this.recordAudio();
+      this.recorder.start();
+      this.speechRecognitionEnded = false;
+      this.nativeSpeechToText();
+    },
     nativeSpeechToText() {
       if (this.nativeSpeechRecognition == null) {
         return console.log("speech recognition not supported in your browser");
