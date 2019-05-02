@@ -100,5 +100,18 @@ export default new Vuex.Store({
 					return false;
 				});
 		},
+		checkCurrentUser() {
+			let user = firebase.auth().currentUser;
+			if (user) {
+				return user;
+			}
+			return firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					return user;
+				} else {
+					return null;
+				}
+			});
+		},
 	}
 });
