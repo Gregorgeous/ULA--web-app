@@ -35,4 +35,22 @@ let router = new Router({
 	]
 });
 
+router.beforeEach((to, from, next) => {
+	let currentUser = firebase.auth().currentUser;
+	console.log("from router, that's currentuser: ", currentUser);
+	if (!currentUser) {
+		firebase.auth().onAuthStateChanged(function(user) {
+			console.log("this is user info", user);
+			if (!store.state.userLoggedIn && user) {
+				store.dispatch("fetchUserDbDataFromUid", user.uid);
+			}
+			let requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+			if (requiresAuth && !user) next("login");
+			else next();
+		});
+	} else {
+		next();
+	}
+});
+
 export default router;
