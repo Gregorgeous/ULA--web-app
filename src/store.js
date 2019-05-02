@@ -224,5 +224,25 @@ export default new Vuex.Store({
 			firebase.auth().signOut();
 			commit("logout");
 		},
+		// ========= SAVE RECORDING'S AUDIO ==============
+		// NOTE: Remember, it's an internal action, to be used only in scope of saveTranscriptToFirebase() action. That's why the "_" before action's name!
+		_saveAudioBlobToStorage({ state }, payload) {
+			console.log("here I am");
+			let userID = payload.userID;
+			let audioID = payload.audioID;
+			let audioBlob = payload.audioObject.audioBlob;
+			firebase
+				.storage()
+				.ref(`${userID}/${audioID}`)
+				.put(audioBlob)
+				.then(snapshot => {
+					console.log("the file has been uploaded to storage !");
+					console.log(snapshot);
+				})
+				.catch(err => {
+					console.log("error while storing audio blob in Firebase Storage");
+					console.log(err);
+				});
+		},
 	}
 });
