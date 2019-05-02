@@ -200,6 +200,18 @@ export default {
       this.speechRecognitionEnded = false;
       this.nativeSpeechToText();
     },
+    discardTheRecording() {
+      this.saveRecordingDialog = false;
+      this.nativeTextTranscription = [];
+
+      // TODO: check if the below is needed (coz currently I think it breaks the recorder for the next recordings..)
+      // this.recorder = null;
+      // this.recordingPaused = false;
+      // this.recordedAudio = null;
+      // this.audioPlay = false;
+      // this.userRequestedTranscription = false;
+      // this.nativeSpeechRecognition = null;
+    },
     nativeSpeechToText() {
       if (this.nativeSpeechRecognition == null) {
         return console.log("speech recognition not supported in your browser");
