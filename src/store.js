@@ -156,5 +156,69 @@ export default new Vuex.Store({
 					return false;
 				});
 		},
+		logIn({ commit }, payload) {
+			commit("changeLoadingState", true);
+			console.log("this is payload", payload);
+
+			if (!payload.persistentLogin) {
+				// IDEA: If user doesn't want to login persistenly, we set auth obj persistence to SESSION
+				return firebase
+					.auth()
+					.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+					.then(function() {
+						return loginAuthAndDbFlow();
+					});
+			} else {
+				return firebase
+					.auth()
+					.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+					.then(function() {
+						return loginAuthAndDbFlow();
+					});
+			}
+
+			function loginAuthAndDbFlow() {
+				return firebase
+					.auth()
+					.signInWithEmailAndPassword(payload.email, payload.password)
+					.then(user => {
+						user = user.user;
+						return firebase
+							.firestore()
+							.collection("Users")
+							.doc(`${user.uid}`)
+							.get()
+							.then(userAccount => {
+								console.log("This is what I got fetching user's account");
+								console.log(userAccount.data());
+								if (userAccount.exists) {
+									commit("setCurrentUser", userAccount.data());
+									commit("changeLoadingState", false);
+									return true;
+								}
+								// TODO: ensure this case is handled by the front-facing login form !
+								else {
+									console.log(
+										"ERROR: couldn't find this authenticated user's account in the firestore..."
+									);
+									return false;
+								}
+							})
+							.catch(dbFetchError => {
+								console.log(
+									"Error while fetching users's account data by their uid: ",
+									dbFetchError
+								);
+								commit("changeLoadingState", false);
+								return false;
+							});
+					})
+					.catch(authError => {
+						console.log("Error in authenticating the user", authError);
+						commit("changeLoadingState", false);
+						return false;
+					});
+			}
+		},
 	}
 });
