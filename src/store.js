@@ -112,5 +112,30 @@ export default new Vuex.Store({
 				}
 			});
 		},
+		createTheAccountInDb({ commit }, payload) {
+			console.log("Im here !!");
+			console.log("this is my payload");
+			console.log(payload);
+			return firebase
+				.firestore()
+				.collection("Users")
+				.doc(`${payload.uid}`)
+				.set({
+					fullName: payload.fullName,
+					email: payload.email
+				})
+				.then(() => {
+					console.log("Account successfully created ");
+					commit("changeLoadingState", false);
+					return true;
+				})
+				.catch(err => {
+					console.log(
+						`There was an error in the "createTheAccountInDb" action: ${err}`
+					);
+					commit("changeLoadingState", false);
+					return false;
+				});
+		},
 	}
 });
