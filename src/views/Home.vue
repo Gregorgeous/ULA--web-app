@@ -200,6 +200,12 @@ export default {
       this.speechRecognitionEnded = false;
       this.nativeSpeechToText();
     },
+    async stopRecording() {
+      this.recordingPaused = false;
+      this.recordedAudio = await this.recorder.stop();
+      this.stopNativeSpeechToText();
+      // this.openSaveRecordingDialog(); // <- UNCOMMENT ONCE SAVE DIALOG COMPONENT CREATED.
+    },
     openSaveRecordingDialog() {
       this.saveRecordingDialog = true;
     },
