@@ -194,6 +194,12 @@ export default {
       this.recordingPaused = true;
       this.stopNativeSpeechToText();
     },
+    async resumeRecording() {
+      this.recorder.resume();
+      this.recordingPaused = false;
+      this.speechRecognitionEnded = false;
+      this.nativeSpeechToText();
+    },
     nativeSpeechToText() {
       if (this.nativeSpeechRecognition == null) {
         return console.log("speech recognition not supported in your browser");
