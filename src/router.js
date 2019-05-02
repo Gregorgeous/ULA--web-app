@@ -21,6 +21,25 @@ let router = new Router({
 			}
 		},
 		{
+			path: "/recordings",
+			name: "recordings",
+			// route level code-splitting
+			// this generates a separate chunk (login.[hash].js) for this route
+			// which is lazy-loaded when the route is visited.
+			component: () =>
+				import(/* webpackChunkName: "Register" */ "./views/RecordingsList.vue")
+		},
+		{
+			path: "/recordings/:audiotitle",
+			name: "recording-item",
+			props: true,
+			// route level code-splitting
+			// this generates a separate chunk (login.[hash].js) for this route
+			// which is lazy-loaded when the route is visited.
+			component: () =>
+				import(/* webpackChunkName: "Register" */ "./views/ULArecordingItem.vue")
+		},
+		{
 			path: "/login",
 			name: "login",
 			component: () =>
