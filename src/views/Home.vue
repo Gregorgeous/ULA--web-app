@@ -162,8 +162,12 @@
 </template>
 
 <script>
+import { recordAudio } from "./../recordingModule";
+import { log, print } from "util";
+import { setInterval, clearInterval } from "timers";
 
 export default {
+  components: { saveDialog },
   data: () => ({
     recorder: null,
     recordingPaused: false,
