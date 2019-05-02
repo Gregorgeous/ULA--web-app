@@ -217,6 +217,9 @@ export default {
       this.speechRecognitionEnded = true;
       this.nativeSpeechRecognition.stop();
     },
+    recordAudio() {
+      return recordAudio();
+    },
   },
   mounted() {
     window.SpeechRecognition =
