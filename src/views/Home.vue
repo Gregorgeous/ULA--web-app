@@ -165,6 +165,7 @@
 import { recordAudio } from "./../recordingModule";
 import { log, print } from "util";
 import { setInterval, clearInterval } from "timers";
+import saveDialog from "@/components/saveAudioDialog";
 
 export default {
   components: { saveDialog },
