@@ -179,6 +179,18 @@ export default {
     saveRecordingDialog: false,
     speechRecognitionEnded: false
   }),
+  methods: {
+    nativeSpeechToText() {
+      if (this.nativeSpeechRecognition == null) {
+        return console.log("speech recognition not supported in your browser");
+        alert("speech recognition not supported in your browser");
+        this.nativeTextTranscription.push(
+          "speech recognition is not supported in your browser"
+        );
+      }
+      this.nativeSpeechRecognition.start();
+    },
+  },
   mounted() {
     window.SpeechRecognition =
       window.webkitSpeechRecognition || window.SpeechRecognition;
