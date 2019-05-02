@@ -164,6 +164,17 @@
 <script>
 
 export default {
+  data: () => ({
+    recorder: null,
+    recordingPaused: false,
+    recordedAudio: null,
+    audioPlay: false,
+    userRequestedTranscription: false,
+    nativeSpeechRecognition: null,
+    nativeTextTranscription: [],
+    saveRecordingDialog: false,
+    speechRecognitionEnded: false
+  }),
   }
 };
 </script>
