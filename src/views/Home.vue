@@ -204,7 +204,7 @@ export default {
       this.recordingPaused = false;
       this.recordedAudio = await this.recorder.stop();
       this.stopNativeSpeechToText();
-      // this.openSaveRecordingDialog(); // <- UNCOMMENT ONCE SAVE DIALOG COMPONENT CREATED.
+      this.openSaveRecordingDialog();
     },
     openSaveRecordingDialog() {
       this.saveRecordingDialog = true;
