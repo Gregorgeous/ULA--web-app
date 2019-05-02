@@ -242,6 +242,16 @@ export default {
     recordAudio() {
       return recordAudio();
     },
+  computed: {
+    recordingTimeObject() {
+      return this.$store.state.recordingTime;
+    },
+    isRecordingOn() {
+      return this.$store.state.isRecordingOn;
+    },
+    currentUser() {
+      return this.$store.state.currentUser;
+    }
   },
   mounted() {
     window.SpeechRecognition =
