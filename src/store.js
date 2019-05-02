@@ -220,5 +220,9 @@ export default new Vuex.Store({
 					});
 			}
 		},
+		logout({ commit }) {
+			firebase.auth().signOut();
+			commit("logout");
+		},
 	}
 });
