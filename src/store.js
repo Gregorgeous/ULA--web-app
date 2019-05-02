@@ -311,6 +311,76 @@ export default new Vuex.Store({
 				return legalAudioTitle;
 			});
 		},
+		// ========== user's recording list view actions ====
+		async fetchUserRecordings({ dispatch }) {
+			let currentUser = await this.dispatch("checkCurrentUser");
+			this.dispatch("fetchUserDbDataFromUid", currentUser.uid);
+		},
+		fetchSingleRecording({ dispatch, state }, ulaFileName) {
+			let currentUser = dispatch("checkCurrentUser");
+			return dispatch("fetchUserDbDataFromUid", currentUser.uid).then(() => {
+				let wantedULAFileExists =
+					state.currentUser.userTextTranscriptions[ulaFileName];
+				let summaryExists = wantedULAFileExists["pathToSummary"];
+				let audioExists = wantedULAFileExists["pathToAudio"];
+
+				if (wantedULAFileExists && summaryExists) {
+					let payload = {
+						pathToSummary: summaryExists,
+						transcriptionTitle: ulaFileName
+					};
+					dispatch("fetchSingleSummary", payload).then(res => {
+						return true;
+					});
+				}
+				if (wantedULAFileExists && audioExists) {
+					let audioPath = audioExists; // just an alias for better clarity.
+					return dispatch("fetchSingleAudioFile", audioPath).then(result => {
+						console.log("in chain, result");
+						console.log(result);
+
+						return result;
+					});
+				}
+				return false;
+			});
+		},
+		// TODO: FINISH THIS ! STEPS TO DO:
+		// - Figure out how to run this AFTER "fetchSingleRecording" ACTION
+		// - Create a mutation that saves the summary in the vuex store
+		// - On ULARecordingItem view: add computed to hold the summary and keywords from the vuex state
+		// - You might need some additional display logic on the view side as data comes with "\n" escape chars ...
+		// - pray it'll all work ;p
+		fetchSingleSummary({ commit }, payload) {
+			let pathToSummary = payload.pathToSummary;
+			let transcriptionTitle = payload.transcriptionTitle;
+			return firebase
+				.database()
+				.ref(`${pathToSummary}`)
+				.once("value")
+				.then(resSnapshot => {
+					let responseObject = resSnapshot.val();
+					// IDEA: Remember responseObject gives you back an object like this {"keywords: ..., "summary": ...}
+					let commitObj = {
+						transcriptionTitle,
+						summary: responseObject.summary,
+						keywords: responseObject.keywords
+					};
+					commit("setOneUserSummary", commitObj);
+				});
+		},
+		fetchSingleAudioFile({ commit }, audioURL) {
+			return firebase
+				.storage()
+				.ref(audioURL)
+				.getDownloadURL()
+				.then(url => {
+					console.log("this is the url");
+					console.log(url);
+					commit("setLoadAudioFile", url);
+					return url;
+				});
+		}
 	}
 });
 
