@@ -6,6 +6,7 @@ import "firebase/storage";
 import "firebase/firestore";
 import "firebase/auth";
 import axios from "axios";
+import sampleText from "./sampleText";
 
 Vue.use(Vuex);
 
@@ -244,5 +245,103 @@ export default new Vuex.Store({
 					console.log(err);
 				});
 		},
+		// ========= SUMMARIZATION ==============
+		// @param Payload nee	ded fields:
+		// -  'wholeText': whole generated text transcription
+		saveTranscriptToFirebase({ state, commit, dispatch }, payload) {
+			return firebase.auth().onAuthStateChanged(function(user) {
+				let uid = user.uid; // this is just for convenience
+				let legalAudioTitle = validateAudioTitleForFirebase(payload.audioTitle);
+				let legalAudioTimestamp = validateAudioTitleForFirebase(
+					payload.audioTimestamp
+				);
+				let textToSummarize;
+				if (payload.wordsArray && payload.wordsArray.join(". ") < 50) {
+					console.log(
+						"Text to short to be summarized. Providing sample text instead"
+					);
+					textToSummarize = sampleText;
+				} else {
+					// FIXME: This is a quick and dirty fix to add commas and make sentences out of the big chunk of text.
+					// textToSummarize = makeSentencesFromText(payload.wordsArray);
+					textToSummarize = payload.wordsArray.join(". ");
+				}
+				let dataToSendForSummary = {
+					userID: uid,
+					audioID: legalAudioTimestamp,
+					audioTitle: legalAudioTitle,
+					wholeText: textToSummarize
+				};
+				let dataToSendForAudio = {
+					userID: uid,
+					audioID: legalAudioTimestamp,
+					audioTitle: legalAudioTitle,
+					audioObject: payload.audioObject
+				};
+				dispatch("_saveAudioBlobToStorage", dataToSendForAudio);
+				axios
+					.post("http://127.0.0.1:5000/summarization", dataToSendForSummary)
+					.then(responseObject => {
+						let resSummaryPath = responseObject.data;
+						let field = `userTextTranscriptions.${legalAudioTimestamp}`;
+						// let dateForAudio = makeDateForAudio();
+						let transcriptionObject = {
+							title: legalAudioTitle,
+							date: payload.audioTimestamp,
+							content: payload.wholeText,
+							pathToSummary: resSummaryPath,
+							pathToAudio: `${uid}/${legalAudioTimestamp}`
+						};
+
+						firebase
+							.firestore()
+							.collection("Users")
+							.doc(`${uid}`)
+							.update({
+								[field]: transcriptionObject
+							})
+							.catch(err => {
+								console.log(
+									"Error in saving the wholeTextTranscription to users account"
+								);
+								console.log(err);
+								return false;
+							});
+					});
+				return legalAudioTitle;
+			});
+		},
 	}
 });
+
+// Function Description: Arbitrarily divide the whole text into sentences by adding a full stop after every 8 words.
+function makeSentencesFromText(wordsArray) {
+	let sentencedStringArray = [];
+
+	wordsArray.forEach((word, index) => {
+		if (index % 8 == 0 && index != 0) {
+			sentencedStringArray.push(".");
+		}
+		sentencedStringArray.push(word);
+		// If it's the last word we also want to finish it all with a dot at the end.
+		if (index == wordsArray.length - 1) {
+			sentencedStringArray.push(".");
+		}
+	});
+
+	return sentencedStringArray.join(" ");
+}
+
+function validateAudioTitleForFirebase(audioTitle) {
+	let newAudioTitle;
+	newAudioTitle = audioTitle.replace(/([*\[\]])/g, "");
+	newAudioTitle = newAudioTitle.replace(/(\/)/g, "-");
+	return newAudioTitle;
+}
+
+function makeDateForAudio() {
+	let wholeDate = new Date();
+	let timeFormat = wholeDate.toLocaleTimeString();
+	let dateFormat = wholeDate.toLocaleDateString();
+	return `${timeFormat} (${dateFormat})`;
+}
