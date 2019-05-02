@@ -179,6 +179,60 @@ export default {
     saveRecordingDialog: false,
     speechRecognitionEnded: false
   }),
+  mounted() {
+    window.SpeechRecognition =
+      window.webkitSpeechRecognition || window.SpeechRecognition;
+    this.nativeSpeechRecognition = new SpeechRecognition();
+    this.nativeSpeechRecognition.lang = "en-US";
+    this.nativeSpeechRecognition.continuous = true;
+    this.nativeSpeechRecognition.maxAlternatives = 1;
+    this.nativeSpeechRecognition.onresult = event => {
+      console.log("this is the result");
+      console.log(event);
+      this.nativeTextTranscription.push(event.results[0][0].transcript);
+      console.log("Stop happened");
+      this.nativeSpeechRecognition.stop();
+    };
+
+    this.nativeSpeechRecognition.onspeechend = () => {
+      this.nativeSpeechRecognition.stop();
+    };
+
+    this.nativeSpeechRecognition.onaudiostart = event => {
+      //Fired when the user agent has started to capture audio.
+      console.log("SpeechRecognition.onaudiostart");
+    };
+
+    this.nativeSpeechRecognition.onaudioend = event => {
+      //Fired when the user agent has finished capturing audio.
+      console.log("SpeechRecognition.onaudioend");
+      setTimeout(() => {
+        if (!this.speechRecognitionEnded) {
+          console.log("start happened");
+          this.nativeSpeechToText();
+        }
+      }, 1000);
+    };
+
+    this.nativeSpeechRecognition.onend = event => {
+      //Fired when the speech this.nativeSpeechRecognition service has disconnected.
+      console.log("SpeechRecognition.onend");
+    };
+
+    this.nativeSpeechRecognition.onnomatch = event => {
+      //Fired when the speech this.nativeSpeechRecognition service returns a final result with no significant this.nativeSpeechRecognition. This may involve some degree of this.nativeSpeechRecognition, which doesn't meet or exceed the confidence threshold.
+      console.log("SpeechRecognition.onnomatch");
+    };
+
+    this.nativeSpeechRecognition.onsoundstart = event => {
+      //Fired when any sound — recognisable speech or not — has been detected.
+      console.log("SpeechRecognition.onsoundstart");
+    };
+
+    this.nativeSpeechRecognition.onsoundend = event => {
+      //Fired when any sound — recognisable speech or not — has stopped being detected.
+      console.log("SpeechRecognition.onsoundend");
+    };
   }
 };
 </script>
